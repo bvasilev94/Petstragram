@@ -1,0 +1,1 @@
+exports.SECRET = 'asidjuc9812jck2v310089ubvikj2'

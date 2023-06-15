@@ -10,7 +10,7 @@ const petSchema = new mongoose.Schema({
     required: [true, "Image URL is required!"],
   },
   age: {
-    type: String,
+    type: Number,
     required: [true, "Age is required!"],
   },
   description: {
@@ -25,6 +25,18 @@ const petSchema = new mongoose.Schema({
     type: mongoose.Types.ObjectId,
     ref: "User",
   },
+  comments: [
+    {
+      username: {
+        type: String,
+        required: true,
+      },
+      comment: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
 });
 
 const Pet = mongoose.model("Pet", petSchema);

@@ -1,6 +1,8 @@
 const router = require("express").Router();
 
 const userService = require("../services/userService.js");
+const petServices = require("../services/petService.js");
+
 const { extractErrMessages } = require("../utils/errorHandler.js");
 
 router.get("/login", (req, res) => {
@@ -44,6 +46,13 @@ router.post("/register", async (req, res) => {
 router.get("/logout", (req, res) => {
   res.clearCookie("auth");
   res.redirect("/");
+});
+
+router.get("/profile", async (req, res) => {
+  const { _id, username, email } = req.user;
+  const myPets = await petServices.getAllbyOneUser(_id);
+  const length = myPets.length;
+  res.render("users/profile", { myPets, username, email, length });
 });
 
 module.exports = router;

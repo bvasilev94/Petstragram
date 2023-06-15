@@ -6,10 +6,10 @@ const { extractErrMessages } = require("../utils/errorHandler.js");
 router.get("/catalog", async (req, res) => {
   try {
     const pets = await petServices.getAllPets();
-    console.log(pets);
+
     res.render("pets/catalog", { pets });
   } catch (err) {
-
+    res.redirect("/404");
   }
 });
 
@@ -33,6 +33,69 @@ router.post("/add-photo", async (req, res) => {
   } catch (error) {
     const errMessages = extractErrMessages(error);
     res.status(404).render("pets/create", { errMessages });
+  }
+});
+
+router.get("/details/:petId", async (req, res) => {
+  console.log(req.params.petId);
+  try {
+    const pet = await petServices.getOnePet(req.params.petId);
+    const isOwner = req.user?._id === pet.owner?._id.toString();
+    const comments = pet.comments
+
+    let isLoggedInAndNotOwner = res.locals.isAuth;
+    
+    console.log(comments);
+    if (isOwner) {
+      isLoggedInAndNotOwner = false;
+    }
+    res.render("pets/details", { pet, isOwner, isLoggedInAndNotOwner, comments });
+  } catch (error) {
+    res.redirect("/404");
+  }
+});
+
+router.post("/details/:petId", async (req, res) => {
+  const petId = req.params.petId;
+  const username = req.user.username;
+  const { comment } = req.body;
+  try {
+    await petServices.addComment(petId, username, comment);
+    res.redirect(`/pets/details/${petId}`);
+  } catch (err) {
+    res.redirect(`/404`);
+  }
+});
+
+router.get("/details/:petId/delete", async (req, res) => {
+  console.log(req.params.petId);
+  try {
+    await petServices.deletePet(req.params.petId);
+
+    res.redirect("/pets/catalog");
+  } catch (error) {
+    res.redirect("/404");
+  }
+});
+
+router.get("/details/:petId/edit", async (req, res) => {
+  try {
+    const pet = await petServices.getOnePet(req.params.petId);
+    res.render("pets/edit", { pet });
+  } catch (error) {
+    res.redirect("/404");
+  }
+});
+
+router.post("/details/:petId/edit", async (req, res) => {
+  const petId = req.params.petId;
+  const { ...pet } = req.body;
+  try {
+    await petServices.update(petId, pet);
+    res.redirect(`/pets/details/${petId}`);
+  } catch (error) {
+    const errMessages = extractErrMessages(error);
+    res.status(404).render("pets/edit", { pet, errMessages });
   }
 });
 

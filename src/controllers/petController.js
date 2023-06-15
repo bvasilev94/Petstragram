@@ -37,8 +37,7 @@ router.post("/add-photo", isAuth, async (req, res) => {
   }
 });
 
-router.get("/details/:petId", async (req, res) => {
-  console.log(req.params.petId);
+router.get("/details/:petId([0-9a-fA-F]{24})", async (req, res) => {
   try {
     const pet = await petServices.getOnePet(req.params.petId);
     const isOwner = req.user?._id === pet.owner?._id.toString();
@@ -46,7 +45,6 @@ router.get("/details/:petId", async (req, res) => {
 
     let isLoggedInAndNotOwner = res.locals.isAuth;
 
-    console.log(comments);
     if (isOwner) {
       isLoggedInAndNotOwner = false;
     }
@@ -69,6 +67,7 @@ router.post("/details/:petId", isAuth, async (req, res) => {
     await petServices.addComment(petId, username, comment);
     res.redirect(`/pets/details/${petId}`);
   } catch (err) {
+    console.log(err);
     res.redirect(`/404`);
   }
 });

@@ -2,10 +2,10 @@ const mongoose = require("mongoose");
 
 const petSchema = new mongoose.Schema({
   name: {
-    tpye: String,
+    type: String,
     required: [true, "Name is required!"],
   },
-  image: {
+  imageUrl: {
     type: String,
     required: [true, "Image URL is required!"],
   },

@@ -8,13 +8,16 @@
 </head>
 
 <body>
-    {{#each errMessages}}
+
     <div>
+
         <div class="errorContainer">
+            {{#each errMessages}}
             <p>{{this}}</p>
+            {{/each}}
         </div>
+
     </div>
-    {{/each}}
     <header>
         <nav class="navbar">
             <div class="container">

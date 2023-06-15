@@ -2,6 +2,7 @@ const router = require("express").Router();
 const petServices = require("../services/petService.js");
 
 const { extractErrMessages } = require("../utils/errorHandler.js");
+const { isAuth } = require("../middlewares/authMiddleware.js");
 
 router.get("/catalog", async (req, res) => {
   try {
@@ -17,7 +18,7 @@ router.get("/add-photo", (req, res) => {
   res.render("pets/create");
 });
 
-router.post("/add-photo", async (req, res) => {
+router.post("/add-photo", isAuth, async (req, res) => {
   const { name, age, description, location, imageUrl } = req.body;
 
   try {
@@ -41,21 +42,26 @@ router.get("/details/:petId", async (req, res) => {
   try {
     const pet = await petServices.getOnePet(req.params.petId);
     const isOwner = req.user?._id === pet.owner?._id.toString();
-    const comments = pet.comments
+    const comments = pet.comments;
 
     let isLoggedInAndNotOwner = res.locals.isAuth;
-    
+
     console.log(comments);
     if (isOwner) {
       isLoggedInAndNotOwner = false;
     }
-    res.render("pets/details", { pet, isOwner, isLoggedInAndNotOwner, comments });
+    res.render("pets/details", {
+      pet,
+      isOwner,
+      isLoggedInAndNotOwner,
+      comments,
+    });
   } catch (error) {
     res.redirect("/404");
   }
 });
 
-router.post("/details/:petId", async (req, res) => {
+router.post("/details/:petId", isAuth, async (req, res) => {
   const petId = req.params.petId;
   const username = req.user.username;
   const { comment } = req.body;
@@ -67,7 +73,7 @@ router.post("/details/:petId", async (req, res) => {
   }
 });
 
-router.get("/details/:petId/delete", async (req, res) => {
+router.get("/details/:petId/delete", isAuth, async (req, res) => {
   console.log(req.params.petId);
   try {
     await petServices.deletePet(req.params.petId);
@@ -78,7 +84,7 @@ router.get("/details/:petId/delete", async (req, res) => {
   }
 });
 
-router.get("/details/:petId/edit", async (req, res) => {
+router.get("/details/:petId/edit", isAuth, async (req, res) => {
   try {
     const pet = await petServices.getOnePet(req.params.petId);
     res.render("pets/edit", { pet });
@@ -87,7 +93,7 @@ router.get("/details/:petId/edit", async (req, res) => {
   }
 });
 
-router.post("/details/:petId/edit", async (req, res) => {
+router.post("/details/:petId/edit", isAuth, async (req, res) => {
   const petId = req.params.petId;
   const { ...pet } = req.body;
   try {

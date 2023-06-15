@@ -2,6 +2,7 @@ const router = require("express").Router();
 
 const userService = require("../services/userService.js");
 const petServices = require("../services/petService.js");
+const { isAuth } = require("../middlewares/authMiddleware.js");
 
 const { extractErrMessages } = require("../utils/errorHandler.js");
 
@@ -48,7 +49,7 @@ router.get("/logout", (req, res) => {
   res.redirect("/");
 });
 
-router.get("/profile", async (req, res) => {
+router.get("/profile", isAuth, async (req, res) => {
   const { _id, username, email } = req.user;
   const myPets = await petServices.getAllbyOneUser(_id);
   const length = myPets.length;
